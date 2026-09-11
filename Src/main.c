@@ -1,3 +1,6 @@
+#include "FreeRTOS.h"
+#include "task.h"
+
 /**
  ******************************************************************************
  * @file           : main.c
@@ -15,6 +18,31 @@
  *
  ******************************************************************************
  */
+/**
+* @brief FreeRTOS malloc failed hook — halts on heap exhaustion.
+*
+* @note Do not call directly — invoked automatically by FreeRTOS kernel.
+*/
+void vApplicationMallocFailedHook(void) {
+    taskDISABLE_INTERRUPTS();
+    while(1);
+}
+
+/**
+* @brief FreeRTOS stack overflow hook — halts on task stack overflow.
+*
+* @param xTask Task handle of the offending task
+* @param pcTaskName Name string of the offending task
+*
+* @note Do not call directly — invoked automatically by FreeRTOS kernel.
+*/
+void vApplicationStackOverflowHook(TaskHandle_t xTask, char* pcTaskName) {
+    (void)xTask;
+    (void)pcTaskName;
+    taskDISABLE_INTERRUPTS();
+    while(1);
+}
+
 
 #include <stdint.h>
 
