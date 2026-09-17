@@ -3,6 +3,33 @@
 #include "rcc.h" 
 
 void I2C_init(void) {
+    GPIO_Config_t scl = {
+        .port = GPIOB,
+        .pin = 8,
+        .port_code = 1,
+
+        .mode = AF,
+        .type = OPEN_DRAIN,
+        .speed = HIGH,
+        .pull = NO_PULL,
+        .af = 4
+    };
+
+    GPIO_Config_t sda = {
+        .port = GPIOB,
+        .pin = 9,
+        .port_code = 1,
+
+        .mode = AF,
+        .type = OPEN_DRAIN,
+        .speed = HIGH,
+        .pull = NO_PULL,
+        .af = 4
+    };
+
+    GPIO_init(&scl);
+    GPIO_init(&sda);
+
     RCC->APB1ENR |= (1U << 21);
 
     I2C1->CR1 |= (1U << 15);

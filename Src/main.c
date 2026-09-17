@@ -1,5 +1,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
+#include "i2c.h"
+#include "ssd1306.h"
+#include "uart.h"
 
 /**
  ******************************************************************************
@@ -44,14 +47,32 @@ void vApplicationStackOverflowHook(TaskHandle_t xTask, char* pcTaskName) {
 }
 
 
-#include <stdint.h>
-
-#if !defined(__SOFT_FP__) && defined(__ARM_FP)
-  #warning "FPU is not initialized, but the project is compiling for an FPU. Please initialize the FPU before use."
-#endif
 
 int main(void)
 {
-    /* Loop forever */
-	for(;;);
+	UART_init();
+	UART_send_str("UART ready\n");
+
+	I2C_init();
+    UART_send_str("I2C ready\n");
+
+    SSD1306_init();
+    UART_send_str("OLED ready\n");
+    
+    SSD1306_fill(0x00);
+    SSD1306_set_cursor(0, 0);
+    SSD1306_print_str("C1:3.7V                       C2:3.6V");
+
+    SSD1306_set_cursor(0, 2);
+    SSD1306_print_str("C3:3.8V                       C4:3.7V");
+
+    SSD1306_set_cursor(0, 4);
+    SSD1306_print_str("SOC:85%                      T:25C");
+
+    SSD1306_set_cursor(0, 6);
+    SSD1306_print_str("STATUS: OK");
+    UART_send_str("Done\n");
+
+    while(1);
+	
 }

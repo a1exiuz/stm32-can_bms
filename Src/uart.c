@@ -52,7 +52,7 @@ void UART_send_str(const char *c) {
 }
 
 void UART_print_int(int32_t val) {
-    char *buf[10];
+    char buf[10];
     uint8_t idx = 0;
 
     if(val == 0) {
