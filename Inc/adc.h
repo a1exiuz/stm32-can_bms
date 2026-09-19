@@ -44,6 +44,6 @@ typedef struct {
 
 void ADC_init(ADC_Config_t *cfg);
 
-uint16_t ADC_single_conversion(void);
+uint16_t ADC_single_conversion(uint8_t channel);
 
 #endif 
