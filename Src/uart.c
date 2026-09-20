@@ -69,7 +69,7 @@ void UART_print_int(int32_t val) {
         val /= 10;
     }
 
-    for(uint8_t i = idx - 1; i >= 0; i--){
+    for(int8_t i = idx - 1; i >= 0; i--){
         UART_send_char('0' + buf[i]);
     }
 }

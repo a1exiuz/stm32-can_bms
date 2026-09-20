@@ -3,6 +3,9 @@
 #include "i2c.h"
 #include "ssd1306.h"
 #include "uart.h"
+#include "adc.h"
+#include "bms.h"
+
 
 /**
  ******************************************************************************
@@ -51,8 +54,25 @@ void vApplicationStackOverflowHook(TaskHandle_t xTask, char* pcTaskName) {
 int main(void)
 {
 	UART_init();
-	UART_send_str("UART ready\n");
+	UART_send_str("UART ready\r\n");
 
+    ADC_init();
+    UART_send_str("ADC ready\r\n");
+    uint16_t raw1 = ADC_single_conversion(CELL1_CHANNEL);
+   
+    UART_send_str("CELL 1: ");
+    UART_print_int(raw1);
+    UART_send_str("\r\n");
+
+    uint16_t raw2 = ADC_single_conversion(CELL2_CHANNEL);
+
+    UART_send_str("CELL 2: ");
+    UART_print_int(raw2);
+    UART_send_str("\r\n");
+
+
+
+    /* OLED TESTING
 	I2C_init();
     UART_send_str("I2C ready\n");
 
@@ -72,7 +92,7 @@ int main(void)
     SSD1306_set_cursor(0, 6);
     SSD1306_print_str("STATUS: OK");
     UART_send_str("Done\n");
-
+    */
     while(1);
-	
 }
+

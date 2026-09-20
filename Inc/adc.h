@@ -2,16 +2,11 @@
 #define ADC_H
 
 #include <stdint.h>
+#define ADC_MAX_VAL 4095.0f
+#define ADC_MAX_VOLTAGE 3.3f
 
 #define ADC1 ((ADC_RegMap_t*)0x40012000UL)
 #define ADC_COMMON ((ADC_Common_RegMap_t*)0x40012300UL)
-
-typedef struct {
-    uint8_t channel;
-    uint8_t conversions;
-    uint8_t sampling;
-    uint8_t sequence_pos;
-} ADC_Config_t;
 
 typedef struct {
     volatile uint32_t SR;
@@ -42,7 +37,7 @@ typedef struct {
     volatile uint32_t CDR;
 } ADC_Common_RegMap_t;
 
-void ADC_init(ADC_Config_t *cfg);
+void ADC_init(void);
 
 uint16_t ADC_single_conversion(uint8_t channel);
 
