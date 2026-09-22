@@ -2,7 +2,6 @@
 #include "rcc.h"
 #include "gpio.h"
 #include "cli.h"
-#include <string.h>
 
 void UART_init(void){
     GPIO_Config_t TX = {
@@ -56,6 +55,19 @@ void UART_send_str(const char *c) {
         UART_send_char(*c);
         c++;
     } 
+}
+
+void UART_receive_str(char *buf, uint8_t max_len) {
+    char c;
+    uint8_t idx = 0;
+    
+    while(idx < max_len - 1) {
+       c = UART_receive_char();
+       if(c == '\n' || c == '\r') break;
+       buf[idx] = c;
+       idx++;
+    }
+    buf[idx] = '\0'; 
 }
 
 void UART_print_int(int32_t val) {

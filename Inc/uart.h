@@ -23,8 +23,8 @@ char UART_receive_char(void);
 
 void UART_send_str(const char *s);
 
+void UART_receive_str(char *buf, uint8_t max_len);
+
 void UART_print_int(int32_t val);
 
-
-void UART_command_parser(const char *cmd);
 #endif //uart.h

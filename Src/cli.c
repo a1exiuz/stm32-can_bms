@@ -1,5 +1,6 @@
 #include "cli.h"
 #include "uart.h"
+#include <string.h>
 
 const Command_t commands[] = {
     {"PING", handle_ping}

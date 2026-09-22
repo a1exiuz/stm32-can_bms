@@ -5,6 +5,7 @@
 #include "uart.h"
 #include "adc.h"
 #include "bms.h"
+#include "cli.h"
 
 
 /**
@@ -56,6 +57,14 @@ int main(void)
 	UART_init();
 	UART_send_str("UART ready\r\n");
 
+	while(1) {
+		 char buf[64];
+		 UART_receive_str(buf, 64);
+		 CLI_command_parser(buf);
+	}
+
+    
+    /* BATTERY CIRCUIT TESTING
     ADC_init();
     UART_send_str("ADC ready\r\n");
     uint16_t raw1 = ADC_single_conversion(CELL1_CHANNEL);
@@ -69,7 +78,7 @@ int main(void)
     UART_send_str("CELL 2: ");
     UART_print_int(raw2);
     UART_send_str("\r\n");
-
+    */
 
 
     /* OLED TESTING
