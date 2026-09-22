@@ -1,6 +1,8 @@
 #include "uart.h"
 #include "rcc.h"
 #include "gpio.h"
+#include "cli.h"
+#include <string.h>
 
 void UART_init(void){
     GPIO_Config_t TX = {
@@ -44,6 +46,11 @@ void UART_send_char(char c) {
     USART2->DR = (uint8_t)c;
 }
 
+char UART_receive_char(void) {
+    while(!(USART2->SR & (1U << 5))); //wait till rnxe set
+    return((char)USART2->DR);         //read  to the DR register to clear RNXE
+}
+
 void UART_send_str(const char *c) {
     while(*c != '\0') {
         UART_send_char(*c);
@@ -73,3 +80,4 @@ void UART_print_int(int32_t val) {
         UART_send_char('0' + buf[i]);
     }
 }
+

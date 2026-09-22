@@ -19,9 +19,12 @@ void UART_init(void);
 
 void UART_send_char(char c);
 
-void UART_send_str(const char *s);;
+char UART_receive_char(void);
+
+void UART_send_str(const char *s);
 
 void UART_print_int(int32_t val);
 
 
+void UART_command_parser(const char *cmd);
 #endif //uart.h
