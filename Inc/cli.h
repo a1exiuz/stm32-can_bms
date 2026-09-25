@@ -21,4 +21,10 @@ void handle_raw_to_voltage(const char *args);
 
 void handle_calculate_cell_voltage(const char *args);
 
+void handle_avg_voltage(const char *args);
+
+void handle_calculate_charge(const char *args);
+
+void handle_check_fault(const char *args);
+
 #endif //cli.h

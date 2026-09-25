@@ -21,8 +21,9 @@ void BMS_calculate_cell_voltage(uint16_t *raw, float *voltages, uint8_t num_cell
         if(i == 0) {
             voltages[i] = BMS_raw_to_volt(raw[i], CELL_R1[i], CELL_R2[i]);
         } else {
-            float voltage = BMS_raw_to_volt(raw[i], CELL_R1[i], CELL_R2[i]);
-            voltages[i] = voltage - voltages[i - 1];
+            float cumulative = BMS_raw_to_volt(raw[i], CELL_R1[i], CELL_R2[i]);
+            float prev_cumulative = BMS_raw_to_volt(raw[i-1], CELL_R1[i-1], CELL_R2[i-1]);
+            voltages[i] = cumulative - prev_cumulative;
         } 
     }
 }
