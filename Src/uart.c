@@ -83,12 +83,12 @@ void UART_print_int(int32_t val) {
     }
 
     while(val > 0){
-        buf[idx] = val % 10;
+        buf[idx] = (char)val % 10;
         idx++;
         val /= 10;
     }
 
-    for(int8_t i = idx - 1; i >= 0; i--){
+    for(int8_t i = (int8_t)(idx - 1); i >= 0; i--){
         UART_send_char('0' + buf[i]);
     }
 }

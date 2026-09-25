@@ -6,8 +6,9 @@
 #include "adc.h"
 #include "bms.h"
 #include "cli.h"
+#include <stdio.h>
 
-
+#define SCB_CPACR  (*(volatile uint32_t*)0xE000ED88UL)
 /**
  ******************************************************************************
  * @file           : main.c
@@ -54,6 +55,8 @@ void vApplicationStackOverflowHook(TaskHandle_t xTask, char* pcTaskName) {
 
 int main(void)
 {
+	SCB_CPACR |= ((3UL << 10*2) | (3UL << 11*2));
+
 	UART_init();
 	UART_send_str("UART ready\r\n");
 

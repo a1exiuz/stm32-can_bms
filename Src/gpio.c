@@ -14,11 +14,11 @@ void GPIO_init(const GPIO_Config_t *cfg) {
 
     if(cfg->mode == AF) {
         if(cfg->pin <= 7) {
-            cfg->port->AFR[0] &= ~(0xF << ((cfg->pin) * 4));
-            cfg->port->AFR[0] |= (cfg->af << ((cfg->pin) * 4));
+            cfg->port->AFR[0] &= ~((uint32_t)0xF << ((cfg->pin) * 4));
+            cfg->port->AFR[0] |= ((uint32_t)cfg->af << ((cfg->pin) * 4));
         } else {
-            cfg->port->AFR[1] &= ~(0xF << ((cfg->pin % 8) * 4));
-            cfg->port->AFR[1] |= (cfg->af << ((cfg->pin % 8) * 4));
+            cfg->port->AFR[1] &= ~((uint32_t)0xF << ((cfg->pin % 8) * 4));
+            cfg->port->AFR[1] |= ((uint32_t)cfg->af << ((cfg->pin % 8) * 4));
         }
     }
 

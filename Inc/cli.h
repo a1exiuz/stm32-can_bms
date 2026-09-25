@@ -16,4 +16,9 @@ extern const uint8_t NUM_CMDS;
 void CLI_command_parser(const char *s);
 
 void handle_ping(const char *args);
+
+void handle_raw_to_voltage(const char *args);
+
+void handle_calculate_cell_voltage(const char *args);
+
 #endif //cli.h

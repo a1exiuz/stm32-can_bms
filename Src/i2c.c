@@ -36,7 +36,7 @@ void I2C_init(void) {
     I2C1->CR1 &= ~(1U << 15);
 
     I2C1->CR2 |= 16;
-    I2C1->CCR &= ~(0xFFF);
+    I2C1->CCR &= ~(0xFFFUL);
     I2C1->CCR |= 80;
     I2C1->TRISE = 17;
 
