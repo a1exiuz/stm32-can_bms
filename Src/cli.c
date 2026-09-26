@@ -93,16 +93,74 @@ void handle_calculate_cell_voltage(const char *args) {
 }
 
 void handle_avg_voltage(const char *args) {
-    (void)args;
-    UART_send_str("AVG VOLTAGE ENABLED\r\n");
+    char buf1[64];
+    strncpy(buf1, args, 64);
+
+    char *token = strtok(buf1,":");
+    float voltage1 = (float)atof(token);
+
+    token = strtok(NULL,":");
+    float voltage2 = (float)atof(token);
+
+    token = strtok(NULL,":");
+    float voltage3 = (float)atof(token);
+
+    token = strtok(NULL,":");
+    float voltage4 = (float)atof(token);
+
+    float voltages[4] = {
+        voltage1, voltage2, voltage3, voltage4
+    };
+
+    float avg = BMS_avg_voltage(voltages, 4);
+    
+    UART_send_str("AVERAGE VOLTAGE: ");
+    char buf[20];
+    sprintf(buf, "%.1f", avg);
+    UART_send_str(buf);
+    UART_send_str("V\r\n");
 }
 
 void handle_calculate_charge(const char *args) {
-    (void)args;
-    UART_send_str("CALCULATING CHARGE\r\n");
+        char buf1[64];
+        strncpy(buf1, args, 64);
+
+        char *token = strtok(buf1, ":");
+        float avg = (float)atof(token);
+
+        float charge = BMS_calculate_charge(avg);
+
+        char buf[20];
+        UART_send_str("CHARGE: ");
+        sprintf(buf, "%.2f", charge);
+        UART_send_str(buf);
+        UART_send_str("%\r\n");
 }
 
 void handle_check_fault(const char *args) {
-    (void)args;
-    UART_send_str("CHECKING FAULT\r\n");
+    char buf1[64];
+    strncpy(buf1, args, 64);
+
+    char *token = strtok(buf1,":");
+    float voltage1 = (float)atof(token);
+
+    token = strtok(NULL,":");
+    float voltage2 = (float)atof(token);
+
+    token = strtok(NULL,":");
+    float voltage3 = (float)atof(token);
+
+    token = strtok(NULL,":");
+    float voltage4 = (float)atof(token);
+
+    float voltages[4] = {
+        voltage1, voltage2, voltage3, voltage4
+    };
+
+    BMS_Status_t status = BMS_check_fault(voltages, 4);
+    
+    if(status == OK) {
+        UART_send_str("OK");
+    } else  
+        UART_send_str("FAULT");
 }
