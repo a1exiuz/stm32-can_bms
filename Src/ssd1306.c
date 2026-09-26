@@ -45,7 +45,8 @@ const uint8_t font5x7[][5] = {
     // Special characters
     {0x00,0x36,0x36,0x00,0x00}, // :
     {0x23,0x13,0x08,0x64,0x62}, // %
-    {0x06,0x09,0x09,0x06,0x00}  // ° (degree symbol)
+    {0x06,0x09,0x09,0x06,0x00}, // ° (degree symbol)
+    {0x00,0x60,0x60,0x00,0x00}  // .
 };
 
 void SSD1306_send_command(uint8_t cmd) {
@@ -133,6 +134,8 @@ void SSD1306_print_char(char c) {
         index = 37;
     } else if(c == 'DEGREE_CHAR') {
         index = 38;
+    } else if(c == '.') {
+        index = 39;
     }
 
     for(uint8_t i = 0; i < 5; i++) {

@@ -42,7 +42,14 @@ float BMS_avg_voltage(float *voltages, uint8_t num_cells) {
 }
 
 float BMS_calculate_charge(float avg_voltage) {
-    return((avg_voltage - CELL_MIN_VOLTAGE) / (CELL_MAX_VOLTAGE - CELL_MIN_VOLTAGE) * 100.0f);
+    float soc = (avg_voltage - CELL_MIN_VOLTAGE) / (CELL_MAX_VOLTAGE - CELL_MIN_VOLTAGE) * 100.0f;
+
+    if(soc > 100.00f)
+        return(100.00f);
+    else if(soc < 0.00f)
+        return(0.00f);
+    else
+        return(soc);
 }
 
 BMS_Status_t BMS_check_fault(float *voltages, uint8_t num_cells) {

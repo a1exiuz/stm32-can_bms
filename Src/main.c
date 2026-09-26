@@ -62,10 +62,87 @@ int main(void)
     ADC_init();
     UART_send_str("ADC ready\r\n");
 
+    // OLED TESTING
+	I2C_init();
+    UART_send_str("I2C ready\n");
+
+    SSD1306_init();
+    UART_send_str("OLED ready\n");
+    
+    SSD1306_fill(0x00);
+
+
 	while(1) {
-		 char buf[64];
-		 UART_receive_str(buf, 64);
-		 CLI_command_parser(buf);
+		if(get_UART_IRQ_FLAG()) {
+            CLI_command_parser(get_UART_IRQ_CMD());
+        }
+
+        
+        SSD1306_set_cursor(0, 0);
+
+        float voltages[4] = {0};
+        uint16_t raw[4] = {0};
+        uint32_t sum = 0;
+        
+        /*OVERSAMPLING*/
+        for(uint8_t i = 0; i < 16; i++)
+            sum += ADC_single_conversion(CELL1_CHANNEL);
+        raw[0] = (uint16_t)(sum / 16);
+       
+        sum = 0;
+        for(uint8_t i = 0; i < 16; i++)
+            sum += ADC_single_conversion(CELL2_CHANNEL);
+        raw[1] = (uint16_t)(sum / 16);
+        
+        sum = 0;
+        for(uint8_t i = 0; i < 16; i++)
+            sum += ADC_single_conversion(CELL3_CHANNEL);
+        raw[2] = (uint16_t)(sum / 16);
+        
+        sum = 0;
+        for(uint8_t i = 0; i < 16; i++)
+            sum += ADC_single_conversion(CELL4_CHANNEL);
+        raw[3] = (uint16_t)(sum / 16);
+        
+        BMS_calculate_cell_voltage(raw, voltages, 4);
+
+        char line_1[64];
+        sprintf(line_1, "C1:%.1fV", voltages[0]);
+        SSD1306_print_str(line_1);
+
+        SSD1306_set_cursor(72,0);
+        sprintf(line_1,"C2:%.1fV", voltages[1]);
+        SSD1306_print_str(line_1);
+
+        char line_2[64];
+        SSD1306_set_cursor(0, 2);
+        sprintf(line_2, "C3:%.1fV", voltages[2]);
+        SSD1306_print_str(line_2);
+
+        SSD1306_set_cursor(72,2);
+        sprintf(line_2, "C4:%.1fV", voltages[3]);
+        SSD1306_print_str(line_2);
+
+        float avg = BMS_avg_voltage(voltages, 4);
+        float soc = BMS_calculate_charge(avg);
+
+        char line_3[64];
+        SSD1306_set_cursor(0, 4);
+        sprintf(line_3, "SOC: %.1f", soc);
+        SSD1306_print_str(line_3);
+        SSD1306_print_str("%");
+
+        BMS_Status_t status = BMS_check_fault(voltages, 4);
+        SSD1306_set_cursor(0, 6);
+        if(status == OK) {
+            SSD1306_print_str("STATUS: OK");
+        } else {
+            SSD1306_print_str("STATUS: FAULT");
+        }
+
+        for(uint32_t i = 0; i < 80000; i++) {
+            __asm("NOP");
+        }
 	}
 
     
@@ -86,27 +163,6 @@ int main(void)
     */
 
 
-    /* OLED TESTING
-	I2C_init();
-    UART_send_str("I2C ready\n");
 
-    SSD1306_init();
-    UART_send_str("OLED ready\n");
-    
-    SSD1306_fill(0x00);
-    SSD1306_set_cursor(0, 0);
-    SSD1306_print_str("C1:3.7V                       C2:3.6V");
-
-    SSD1306_set_cursor(0, 2);
-    SSD1306_print_str("C3:3.8V                       C4:3.7V");
-
-    SSD1306_set_cursor(0, 4);
-    SSD1306_print_str("SOC:85%                      T:25C");
-
-    SSD1306_set_cursor(0, 6);
-    SSD1306_print_str("STATUS: OK");
-    UART_send_str("Done\n");
-    */
-    while(1);
 }
 

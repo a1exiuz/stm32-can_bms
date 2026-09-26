@@ -27,4 +27,10 @@ void UART_receive_str(char *buf, uint8_t max_len);
 
 void UART_print_int(int32_t val);
 
+void USART2_IRQHandler(void);
+
+uint8_t get_UART_IRQ_FLAG(void);
+
+const char* get_UART_IRQ_CMD(void);
+
 #endif //uart.h

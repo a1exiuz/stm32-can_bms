@@ -2,6 +2,11 @@
 #include "rcc.h"
 #include "gpio.h"
 #include "cli.h"
+#include "nvic.h"
+
+static char rx_buf[64];
+static uint8_t rx_idx = 0;
+static volatile uint8_t rx_ready = 0;
 
 void UART_init(void){
     GPIO_Config_t TX = {
@@ -37,7 +42,10 @@ void UART_init(void){
     USART2->CR2 &= ~(3U << 12);
     USART2->BRR = (8 << 4) | (11);
     USART2->CR1 |= (1U << 3);
+    USART2->CR1 |= (1U << 5);
     USART2->CR1 |= (1U << 2);
+
+    NVIC_enable(USART2_IRQn, 6); // 38
 }
 
 void UART_send_char(char c) {
@@ -93,3 +101,25 @@ void UART_print_int(int32_t val) {
     }
 }
 
+void USART2_IRQHandler(void) {
+    if(USART2->SR & (1U << 5)) {
+        char c = (char)USART2->DR;
+
+        if(c == '\r' || c == '\n') {
+            rx_buf[rx_idx] = '\0'; //end of string
+            rx_ready = 1;
+            rx_idx = 0;
+        } else {
+            rx_buf[rx_idx++] = c; //store char and advance index
+        }
+    }
+}
+
+uint8_t get_UART_IRQ_FLAG(void) {
+    return(rx_ready);
+}
+
+const char* get_UART_IRQ_CMD(void) {
+    rx_ready = 0; //command is ready
+    return(const char*)rx_buf;
+}
