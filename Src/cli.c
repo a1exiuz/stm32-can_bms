@@ -1,6 +1,7 @@
 #include "cli.h"
 #include "uart.h"
 #include "bms.h"
+#include "adc.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -11,7 +12,8 @@ const Command_t commands[] = {
 	{"CALCULATE CELL VOLTAGE", handle_calculate_cell_voltage},
     {"AVG VOLTAGE", handle_avg_voltage},
     {"CALCULATE CHARGE", handle_calculate_charge},
-    {"CHECK FAULT", handle_check_fault}
+    {"CHECK FAULT", handle_check_fault},
+    {"READ_ADC", handle_read_adc}
 };
 
 #define NUM_CMDS  (sizeof(commands) / sizeof(commands[0]))
@@ -163,4 +165,18 @@ void handle_check_fault(const char *args) {
         UART_send_str("OK");
     } else  
         UART_send_str("FAULT");
+}
+
+void handle_read_adc(const char *args) {
+    char buf[64];
+    strncpy(buf, args, 64);
+
+    char *token = strtok(buf, ":");
+    uint8_t channel = (uint8_t)atoi(token);
+
+    uint16_t raw = ADC_single_conversion(channel);
+
+    UART_send_str("RAW: ");
+    UART_print_int(raw);
+    UART_send_str("\r\n");
 }

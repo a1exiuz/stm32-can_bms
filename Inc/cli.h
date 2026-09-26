@@ -27,4 +27,6 @@ void handle_calculate_charge(const char *args);
 
 void handle_check_fault(const char *args);
 
+void handle_read_adc(const char *args);
+
 #endif //cli.h

@@ -59,6 +59,8 @@ int main(void)
 
 	UART_init();
 	UART_send_str("UART ready\r\n");
+    ADC_init();
+    UART_send_str("ADC ready\r\n");
 
 	while(1) {
 		 char buf[64];
