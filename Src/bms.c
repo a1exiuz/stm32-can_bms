@@ -1,11 +1,67 @@
 #include "bms.h"
 #include "adc.h"
+#include "gpio.h"
 
 const float CELL_R1[] = {CELL1_RESISTOR1, CELL2_RESISTOR1, 
 CELL3_RESISTOR1, CELL4_RESISTOR1};
 
 const float CELL_R2[] = {CELL1_RESISTOR2, CELL2_RESISTOR2, 
 CELL3_RESISTOR2, CELL4_RESISTOR2};
+
+void BMS_init(void) {
+    GPIO_Config_t cell_1 = {
+        .port = GPIOA,
+        .pin = 0,
+        .port_code = 0,
+
+        .mode = ANALOG,
+        .type = PUSH_PULL, // IGNORED
+        .speed = LOW,      // IGNORED
+        .pull = NO_PULL,
+        .af = 0            // IGNORED
+    };
+
+    GPIO_Config_t cell_2 = {
+        .port = GPIOA,
+        .pin = 1,
+        .port_code = 0,
+
+        .mode = ANALOG,
+        .type = PUSH_PULL, // IGNORED
+        .speed = LOW,      // IGNORED
+        .pull = NO_PULL,
+        .af = 0            // IGNORED
+    };
+
+    GPIO_Config_t cell_3 = {
+        .port = GPIOA,
+        .pin = 4,
+        .port_code = 0,
+
+        .mode = ANALOG,
+        .type = PUSH_PULL, // IGNORED
+        .speed = LOW,      // IGNORED
+        .pull = NO_PULL,
+        .af = 0            // IGNORED
+    };
+
+    GPIO_Config_t cell_4 = {
+        .port = GPIOA,
+        .pin = 6,
+        .port_code = 0,
+
+        .mode = ANALOG,
+        .type = PUSH_PULL, // IGNORED
+        .speed = LOW,      // IGNORED
+        .pull = NO_PULL,
+        .af = 0            // IGNORED
+    };
+
+    GPIO_init(&cell_1);
+    GPIO_init(&cell_2);
+    GPIO_init(&cell_3);
+    GPIO_init(&cell_4);
+}
 
 float BMS_raw_to_volt(uint16_t raw, float r1, float r2) {
     float junction = (raw / ADC_MAX_VAL) * ADC_MAX_VOLTAGE;

@@ -26,6 +26,8 @@ typedef enum {
     FAULT
 } BMS_Status_t;
 
+void BMS_init(void);
+
 float BMS_raw_to_volt(uint16_t raw, float r1, float r2);
 
 void BMS_calculate_cell_voltage(uint16_t *raw, float *voltages, uint8_t num_cells);
