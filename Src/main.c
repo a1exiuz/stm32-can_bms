@@ -61,7 +61,8 @@ int main(void)
 	UART_send_str("UART ready\r\n");
     ADC_init();
     UART_send_str("ADC ready\r\n");
-
+    BMS_init();
+    
     // OLED TESTING
 	I2C_init();
     UART_send_str("I2C ready\n");
