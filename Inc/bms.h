@@ -18,6 +18,11 @@
 #define CELL_MAX_VOLTAGE 4.2f
 #define CELL_MIN_VOLTAGE 3.0f
 
+#define BMS_CELL_VOLTAGE_ID 0x400
+#define BMS_INFO_ID 0x401
+#define BMS_ID_RANGE 0x400
+#define BMS_ID_MASK 0x700
+
 extern const float CELL_R1[];
 extern const float CELL_R2[];
 

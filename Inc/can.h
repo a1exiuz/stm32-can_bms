@@ -36,7 +36,8 @@ typedef struct {
     volatile uint32_t RDL1R;    //0x1C8
     volatile uint32_t RDH1R;    //0x1CC
     volatile uint32_t RESERVED2[12]; //0x1D0 - 0x1FF
-    volatile uint32_t RESERVED3[2]; // 0x200 - 0x204
+    volatile uint32_t FMR;      //0x200
+    volatile uint32_t FM1R;     //0x204
     volatile uint32_t RESERVED4;//0x208
     volatile uint32_t FS1R;     //0x20C
     volatile uint32_t RESERVED5;//0x210
@@ -45,15 +46,38 @@ typedef struct {
     volatile uint32_t FA1R;     //0x21C
     volatile uint32_t RESERVED7;//0x220
     volatile uint32_t RESERVED8[7];//0x224 - 0x23F
-    volatile uint32_t F0R1;     //0x240
-    volatile uint32_t F0R2;     //0x244
-    volatile uint32_t F1R1;     //0x248
-    volatile uint32_t F1R2;     //0x24C
-    volatile uint32_t FILTER_REGS[50]; //0x250 - 0x314
-    volatile uint32_t F27R1;    //0x318
-    volatile uint32_t F27R2;    //0x31C
+    volatile uint32_t FILTER_REGS[56]; //0x240 - 0x31C
 } CAN_RegMap_t;
 
+typedef enum {
+    CAN_FILTER_MASK = 0,
+    CAN_FILTER_LIST
+} CAN_LIST_MASK_t;
+
+typedef enum {
+    CAN_FILTER_32BIT = 0,
+    CAN_FILTER_16BIT
+} CAN_16_32_t;
+
+typedef struct {
+    union {
+        struct {
+            uint32_t id[4];
+            uint8_t num_ids;
+        } list_mode;
+        struct {
+            uint32_t id[2];
+            uint32_t mask[2];
+        } mask_mode;
+    }; 
+    uint8_t bank;
+    uint8_t fifo;
+    CAN_16_32_t scale;
+    CAN_LIST_MASK_t mode;
+} CAN_Filter_t;
+
 void CAN_init(void);
+
+void CAN_filter_init(CAN_Filter_t *cfg);
 
 #endif //can.h

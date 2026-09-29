@@ -1,4 +1,9 @@
 #include "can.h"
+#include "bms.h"
+
+static const uint32_t bms_ids[] = {
+
+};
 
 void CAN_init(void) {
     /*
@@ -63,4 +68,87 @@ void CAN_init(void) {
    CAN1->MCR &= ~(1U << 4);     //NART bit - Auto re-transmit until succesfull transmittion
    CAN1->MCR |= (1U << 5);      //AWUM bit - Auto wake when message detected
    CAN1->MCR |= (1U << 6);      //ABOM bit - automatic bus-off state 
+}
+
+void CAN_filter_init(CAN_Filter_t *cfg) {
+    /*Filter init
+    pg 1029
+   
+    Clear FACT bit in CAN_FA1R reg
+    Filter scale config in FSCx bit in FS1R reg
+    Identifier list or identifier mask mode for mask/identifier reg
+    config by FBMx bits in FM1R reg
+
+    To filter a group of ids, config Mask/ID reg in mask mode
+    To select single id, configu Mask/ID in id list mode
+    */
+    CAN1->FMR |= (1U);       //Enter filter init mode
+    CAN1->FA1R &= ~(1U);     //Clear FACT BIT 
+
+   
+    if(cfg->scale == CAN_FILTER_32BIT) {
+        CAN1->FS1R |= (1U << cfg->bank);  //FSCx Bit - single 32-bit scale config
+    } else {
+        CAN1->FS1R &= ~(1U << cfg->bank); //dual 16-bit scale
+    }
+
+    /*
+     /*
+        F0R1 bits: (ID register)
+        [31-21] = STID = your chosen ID (0x400)
+        [20-4]  = EXID (not used for standard 11-bit)
+        [3]     = IDE = 0 (standard frame)
+        [2]     = RTR = 0 (data frame)
+        [1-0]   = unused
+
+        F0R2 same layout (Mask register)
+        CAN1->Filter_regs = FxRi 
+        cfg->bank = 0 * 2 =     F0R1
+        cfg->bank = 0 * 2 + 1 = F0R2 
+
+        cfg->bank = 1 * 2 =     F1R1
+        cfg->bank = 1 * 2 + 1 = F1R2 
+        etc...
+
+        = instead of |= we want to insert id and make everything else 0
+
+    */
+    if(cfg->mode == CAN_FILTER_MASK) {
+        CAN1->FM1R &= ~(1U << cfg->bank); //FMBx bit - Mask mode
+        
+        if(cfg->scale == CAN_FILTER_32BIT) {
+            CAN1->FILTER_REGS[cfg->bank * 2] = (cfg->mask_mode.id[0] << 21);
+            CAN1->FILTER_REGS[cfg->bank * 2 + 1] = (cfg->mask_mode.mask[0] << 21);
+        } else {
+            CAN1->FILTER_REGS[cfg->bank * 2] = (cfg->mask_mode.mask[0] << 21) | (cfg->mask_mode.id[0] << 5);
+            CAN1->FILTER_REGS[cfg->bank * 2 + 1] = (cfg->mask_mode.mask[1] << 21) | (cfg->mask_mode.id[1] << 5);
+        }    
+    } else {
+        CAN1->FM1R |= (1U << cfg->bank);  //List mode
+
+        if((cfg->list_mode.num_ids == 1)  && (cfg->scale == CAN_FILTER_32BIT)) {
+            CAN1->FILTER_REGS[cfg->bank * 2] = (cfg->list_mode.id[0] << 21);
+            CAN1->FILTER_REGS[cfg->bank * 2 + 1] = (cfg->list_mode.id[0] << 21);
+        } else if((cfg->list_mode.num_ids == 2) && (cfg->scale == CAN_FILTER_32BIT)) {
+            CAN1->FILTER_REGS[cfg->bank * 2] = (cfg->list_mode.id[0] << 21);
+            CAN1->FILTER_REGS[cfg->bank * 2 + 1] = (cfg->list_mode.id[1] << 21);
+        } else if((cfg->list_mode.num_ids == 3) && (cfg->scale == CAN_FILTER_16BIT)) {
+            CAN1->FILTER_REGS[cfg->bank * 2] = (cfg->list_mode.id[1] << 21) | (cfg->list_mode.id[0] << 5);
+            CAN1->FILTER_REGS[cfg->bank * 2 + 1] = (cfg->list_mode.id[2] << 5);
+        } else if((cfg->list_mode.num_ids == 4) && (cfg->scale == CAN_FILTER_16BIT)) {
+            CAN1->FILTER_REGS[cfg->bank * 2] = (cfg->list_mode.id[1] << 21) | (cfg->list_mode.id[0] << 5);
+            CAN1->FILTER_REGS[cfg->bank * 2 + 1] = (cfg->list_mode.id[2] << 21) | (cfg->list_mode.id[3] << 5);
+        } else 
+            return;
+
+        if(cfg->fifo == 0) {
+            CAN1->FFA1R &= ~(1U << cfg->bank);
+        } else {
+            CAN1->FFA1R |= (1U << cfg->bank);
+        }
+            
+        CAN1->FA1R |= (1U << cfg->bank);
+
+        CAN1->FMR &= ~(1U);
+    }
 }
