@@ -6,6 +6,7 @@
 #include "adc.h"
 #include "bms.h"
 #include "cli.h"
+#include "can.h"
 #include <stdio.h>
 
 #define SCB_CPACR  (*(volatile uint32_t*)0xE000ED88UL)
@@ -65,10 +66,32 @@ int main(void)
     
     // OLED TESTING
 	I2C_init();
-    UART_send_str("I2C ready\n");
+    UART_send_str("I2C ready\r\n");
 
     SSD1306_init();
-    UART_send_str("OLED ready\n");
+    UART_send_str("OLED ready\r\n");
+
+    CAN_Filter_t test_cfg = {
+        .mask_mode.id[0] = 0x000,
+        .mask_mode.mask[0] = 0x000,
+        .bank = 0,
+        .fifo = 0,
+        .mode = CAN_FILTER_MASK,
+        .scale = CAN_FILTER_32BIT
+    };
+
+    CAN_init();
+    CAN_filter_init(&test_cfg);
+
+    if(!(CAN1->MSR & (1U))) {
+        UART_send_str("CAN in NORMAL mode\r\n");
+    }else {
+        UART_send_str("ERROR\r\n");
+    }
+
+    if(!(CAN1->MSR & (1U << 1))) {
+        UART_send_str("CAN not sleeping\r\n");
+    }
     
     SSD1306_fill(0x00);
 

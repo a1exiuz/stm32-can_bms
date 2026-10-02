@@ -1,5 +1,7 @@
 #include "can.h"
 #include "bms.h"
+#include "rcc.h"
+#include "gpio.h"
 
 static const uint32_t bms_ids[] = {
     BMS_CELL_VOLTAGE_ID,
@@ -7,6 +9,34 @@ static const uint32_t bms_ids[] = {
 };
 
 void CAN_init(void) {
+    GPIO_Config_t CAN_RX = {
+        .port = GPIOA,
+        .pin = 11,
+        .port_code = 0,
+
+        .mode = AF,
+        .speed = HIGH,      //for 500kbps use HIGH
+        .type = PUSH_PULL,  //CAN uses Push Pull for TJA1050
+        .pull = PULL_UP,    //TJA1050 handles 
+        .af = 9 
+    };
+
+    GPIO_Config_t CAN_TX = {
+        .port = GPIOA,
+        .pin = 12,
+        .port_code = 0,
+
+        .mode = AF,
+        .speed = HIGH,      //for 500kbps use HIGH
+        .type = PUSH_PULL,  //CAN uses Push Pull for TJA1050
+        .pull = NO_PULL,    //TJA1050 handles 
+        .af = 9 
+    };
+
+    GPIO_init(&CAN_RX);
+    GPIO_init(&CAN_TX);
+
+    RCC->APB1ENR |= (1U << 25);
     /*
     pg. 1021
     software request init or sleep
@@ -41,6 +71,7 @@ void CAN_init(void) {
     wait for occurence of a sequence of 11 consecutive reccessive bits
     swithc to normal mode confirmed by hardware by clearing INAK bit in MSR reg
     */
+   CAN1->MCR &= ~(1U << 1);         // clear SLEEP bit 
    CAN1->MCR |= (1U << 0);          // Set INRQ bit - request init
    while(!(CAN1->MSR & (1U << 0))); // Wait for INAK bit - CAN sets 1 when in init mode
 
@@ -51,11 +82,11 @@ void CAN_init(void) {
         16,000,000 / 32
         500,000 = 500kbps
    */
-   CAN1->BTR &= ~(0x3FF);           // Prescaler set to 2
+   CAN1->BTR &= ~(0x3FFU);           // Prescaler set to 2
    CAN1->BTR |= (1U);               // BRP bit [9:0] + 1 = 2
    
    /*MUST EQUAL 16 (1 + TS1 + TS2)*/
-   CAN1->BTR &= ~(0xF << 16);       //TS1 = 13 
+   CAN1->BTR &= ~(0xFU << 16);       //TS1 = 13
    CAN1->BTR |= (12U << 16);        //TS1 bit [3:0] + 1 = 13
 
    CAN1->BTR &= ~(7U << 20);        //TS2 = 2
@@ -94,7 +125,6 @@ void CAN_filter_init(CAN_Filter_t *cfg) {
     }
 
     /*
-     /*
         F0R1 bits: (ID register)
         [31-21] = STID = your chosen ID (0x400)
         [20-4]  = EXID (not used for standard 11-bit)
@@ -141,8 +171,9 @@ void CAN_filter_init(CAN_Filter_t *cfg) {
             CAN1->FILTER_REGS[cfg->bank * 2 + 1] = (cfg->list_mode.id[2] << 21) | (cfg->list_mode.id[3] << 5);
         } else 
             return;
+    }
 
-        if(cfg->fifo == 0) {
+     if(cfg->fifo == 0) {
             CAN1->FFA1R &= ~(1U << cfg->bank);
         } else {
             CAN1->FFA1R |= (1U << cfg->bank);
@@ -153,5 +184,4 @@ void CAN_filter_init(CAN_Filter_t *cfg) {
         CAN1->FMR &= ~(1U);      //Exit filter init mode
         CAN1->MCR &= ~(1U);      //Exit CAN init mode
         while(CAN1->MSR & (1U)); //Wait for INAK bit to be cleared
-    }
 }
