@@ -2,7 +2,8 @@
 #include "bms.h"
 
 static const uint32_t bms_ids[] = {
-
+    BMS_CELL_VOLTAGE_ID,
+    BMS_INFO_ID
 };
 
 void CAN_init(void) {
@@ -149,6 +150,8 @@ void CAN_filter_init(CAN_Filter_t *cfg) {
             
         CAN1->FA1R |= (1U << cfg->bank);
 
-        CAN1->FMR &= ~(1U);
+        CAN1->FMR &= ~(1U);      //Exit filter init mode
+        CAN1->MCR &= ~(1U);      //Exit CAN init mode
+        while(CAN1->MSR & (1U)); //Wait for INAK bit to be cleared
     }
 }
