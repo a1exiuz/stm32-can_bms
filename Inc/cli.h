@@ -29,4 +29,6 @@ void handle_check_fault(const char *args);
 
 void handle_read_adc(const char *args);
 
+void handle_CAN_transmit(const char *args);
+
 #endif //cli.h

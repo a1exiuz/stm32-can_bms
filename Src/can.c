@@ -2,6 +2,7 @@
 #include "bms.h"
 #include "rcc.h"
 #include "gpio.h"
+#include "uart.h"
 #include <string.h>
 
 static const uint32_t bms_ids[] = {
@@ -187,7 +188,7 @@ void CAN_filter_init(CAN_Filter_t *cfg) {
         while(CAN1->MSR & (1U)); //Wait for INAK bit to be cleared
 }
 
-void CAN_transmit(uint32_t id, uint32_t *data, uint8_t len) {
+void CAN_transmit(uint32_t id, uint8_t *data, uint8_t len) {
     /*
     Must select one empty transmit mailbox
     Set up the identifier, the data lenght code (DLC) and the data
@@ -222,6 +223,8 @@ void CAN_transmit(uint32_t id, uint32_t *data, uint8_t len) {
 
         CAN1->TDL0R = (buf[0]) | ((uint32_t)buf[1] << 8) | ((uint32_t)buf[2] << 16) | ((uint32_t)buf[3] << 24);
         CAN1->TDH0R = (buf[4]) | ((uint32_t)buf[5] << 8) | ((uint32_t)buf[6] << 16) | ((uint32_t)buf[7] << 24);
+
+        CAN1->TI0R |= (1U);             //TXRQ bit - Request Transmission
     } else if(CAN1->TSR & (1U << 27)) {
         //chose mailbox 1
         CAN1->TI1R &= ~(1U << 2);
@@ -235,6 +238,7 @@ void CAN_transmit(uint32_t id, uint32_t *data, uint8_t len) {
         CAN1->TDL1R = (buf[0]) | ((uint32_t)buf[1] << 8) | ((uint32_t)buf[2] << 16) | ((uint32_t)buf[3] << 24);
         CAN1->TDH1R = (buf[4]) | ((uint32_t)buf[5] << 8) | ((uint32_t)buf[6] << 16) | ((uint32_t)buf[7] << 24);
 
+        CAN1->TI1R |= (1U);
     } else if(CAN1->TSR & (1u << 28)) {
         //chose mailbox 2
         CAN1->TI2R &= ~(1U << 2);
@@ -245,10 +249,13 @@ void CAN_transmit(uint32_t id, uint32_t *data, uint8_t len) {
         CAN1->TDT2R &= ~(0xFU);
         CAN1->TDT2R |= (len);
         
-        CAN1->TDL2R = (buf[0]) | ((uint32_t)buf[1] << 8) | ((uint32_t)buf[2] << 16) | ((uint32_t)buf[3] << 24);
+        CAN1->TDL2R = (buf[0]) | ((uint32_t)buf[1] << 8) | ((uint32_t)buf[2] << 16) | ((uint32_t)buf[3] << 24);  
         CAN1->TDH2R = (buf[4]) | ((uint32_t)buf[5] << 8) | ((uint32_t)buf[6] << 16) | ((uint32_t)buf[7] << 24);
+        
+        CAN1->TI2R |= (1U);
     } else {
         //mailboxes full
+        UART_send_str("CAN TX: all mailboxes full\r\n");
         return;
     }
 }

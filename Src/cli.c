@@ -2,6 +2,7 @@
 #include "uart.h"
 #include "bms.h"
 #include "adc.h"
+#include "can.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -13,7 +14,8 @@ const Command_t commands[] = {
     {"AVG VOLTAGE", handle_avg_voltage},
     {"CALCULATE CHARGE", handle_calculate_charge},
     {"CHECK FAULT", handle_check_fault},
-    {"READ_ADC", handle_read_adc}
+    {"READ ADC", handle_read_adc},
+    {"CAN TRANSMIT", handle_CAN_transmit}
 };
 
 #define NUM_CMDS  (sizeof(commands) / sizeof(commands[0]))
@@ -179,4 +181,23 @@ void handle_read_adc(const char *args) {
     UART_send_str("RAW: ");
     UART_print_int(raw);
     UART_send_str("\r\n");
+}
+
+void handle_CAN_transmit(const char *args) {
+    char buf[64];
+    strncpy(buf, args, 64);
+
+    char *token = strtok(buf, ":");
+    uint32_t id = ((uint32_t)strtol(token, NULL, 16));
+
+    uint8_t data[8] = {0};
+    uint8_t len = 0;
+
+    while((token = strtok(NULL, ":")) && len < 8) {
+        data[len] = ((uint8_t)strtol(token, NULL, 16));
+        len++;
+    }
+
+    CAN_transmit(id, data, len);
+    UART_send_str("CAN TX sent\r\n");
 }
