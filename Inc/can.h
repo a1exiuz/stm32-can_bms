@@ -80,6 +80,8 @@ void CAN_init(void);
 
 void CAN_filter_init(CAN_Filter_t *cfg);
 
-void CAN_transmit(uint32_t id, uint8_t *data, uint8_t len); 
+void CAN_transmit(uint32_t id, uint8_t *data, uint8_t len);
+
+void CAN_receive(uint32_t *id, uint8_t *data, uint8_t *len);
 
 #endif //can.h

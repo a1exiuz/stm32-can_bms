@@ -104,11 +104,27 @@ int main(void)
         
         SSD1306_set_cursor(0, 0);
 
+
+
+    	if(CAN1->RF0R & 0x3U) {
+    		uint32_t rx_id;
+    		uint8_t rx_data[8] = {0};
+            uint8_t rx_len = 0;
+    		CAN_receive(&rx_id, rx_data, &rx_len);
+    	    char out1[96];
+    	    sprintf(out1, "RX ID:%lX LEN:%u D:%02X %02X %02X %02X\r\n",
+    		    		rx_id, rx_len, rx_data[0], rx_data[1], rx_data[2], rx_data[3]);
+    		 UART_send_str(out1);
+    	}
+	}
+
+        /*
+       
         float voltages[4] = {0};
         uint16_t raw[4] = {0};
         uint32_t sum = 0;
         
-        /*OVERSAMPLING*/
+        /*OVERSAMPLING
         for(uint8_t i = 0; i < 16; i++)
             sum += ADC_single_conversion(CELL1_CHANNEL);
         raw[0] = (uint16_t)(sum / 16);
@@ -163,6 +179,7 @@ int main(void)
         } else {
             SSD1306_print_str("STATUS: FAULT");
         }
+        */
 
         for(uint32_t i = 0; i < 80000; i++) {
             __asm("NOP");
@@ -188,5 +205,4 @@ int main(void)
 
 
 
-}
 

@@ -15,7 +15,8 @@ const Command_t commands[] = {
     {"CALCULATE CHARGE", handle_calculate_charge},
     {"CHECK FAULT", handle_check_fault},
     {"READ ADC", handle_read_adc},
-    {"CAN TRANSMIT", handle_CAN_transmit}
+    {"CAN TRANSMIT", handle_CAN_transmit},
+    {"CAN RECEIVE", handle_CAN_receive}
 };
 
 #define NUM_CMDS  (sizeof(commands) / sizeof(commands[0]))
@@ -189,7 +190,6 @@ void handle_CAN_transmit(const char *args) {
 
     char *token = strtok(buf, ":");
     uint32_t id = ((uint32_t)strtol(token, NULL, 16));
-
     uint8_t data[8] = {0};
     uint8_t len = 0;
 
@@ -200,4 +200,25 @@ void handle_CAN_transmit(const char *args) {
 
     CAN_transmit(id, data, len);
     UART_send_str("CAN TX sent\r\n");
+}
+
+void handle_CAN_receive(const char *args) {
+    (void)args;
+
+    uint32_t id;
+    uint8_t data[8] = {0};
+    uint8_t len = 0;
+
+    char buf[64];
+    
+    CAN_receive(&id, data, &len);
+
+    sprintf(buf, "ID: %lX \r\n LEN: %d\r\n", id, len);
+    UART_send_str(buf);
+
+    for(uint8_t i = 0; i < len; i++) {
+        sprintf(buf, "DATA[%d]: %X\r\n", i, data[i]);
+        UART_send_str(buf);
+    }
+
 }

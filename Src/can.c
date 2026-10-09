@@ -3,6 +3,7 @@
 #include "rcc.h"
 #include "gpio.h"
 #include "uart.h"
+#include <stdio.h>
 #include <string.h>
 
 static const uint32_t bms_ids[] = {
@@ -19,7 +20,7 @@ void CAN_init(void) {
         .mode = AF,
         .speed = HIGH,      //for 500kbps use HIGH
         .type = PUSH_PULL,  //CAN uses Push Pull for TJA1050
-        .pull = PULL_UP,    //TJA1050 handles 
+        .pull = NO_PULL,    //TJA1050 handles
         .af = 9 
     };
 
@@ -175,17 +176,16 @@ void CAN_filter_init(CAN_Filter_t *cfg) {
             return;
     }
 
-     if(cfg->fifo == 0) {
-            CAN1->FFA1R &= ~(1U << cfg->bank);
-        } else {
-            CAN1->FFA1R |= (1U << cfg->bank);
-        }
+    if(cfg->fifo == 0) {
+        CAN1->FFA1R &= ~(1U << cfg->bank);
+    } else {
+        CAN1->FFA1R |= (1U << cfg->bank);
+    }
             
-        CAN1->FA1R |= (1U << cfg->bank);
-
-        CAN1->FMR &= ~(1U);      //Exit filter init mode
-        CAN1->MCR &= ~(1U);      //Exit CAN init mode
-        while(CAN1->MSR & (1U)); //Wait for INAK bit to be cleared
+    CAN1->FA1R |= (1U << cfg->bank);
+    CAN1->FMR &= ~(1U);      //Exit filter init mode
+    CAN1->MCR &= ~(1U);      //Exit CAN init mode
+    while(CAN1->MSR & (1U)); //Wait for INAK bit to be cleared
 }
 
 void CAN_transmit(uint32_t id, uint8_t *data, uint8_t len) {
@@ -214,7 +214,7 @@ void CAN_transmit(uint32_t id, uint8_t *data, uint8_t len) {
     if(CAN1->TSR & (1U << 26)) {
         //chose mailbox 0
         CAN1->TI0R &= ~(1U << 2);       //IDE bit - set to standard
-
+        CAN1->TI0R &= ~(1U << 1);
         CAN1->TI0R &= ~(0x7FFU << 21);  //STID bit - clear field
         CAN1->TI0R |= (id << 21);       //Set ID
         
@@ -228,7 +228,7 @@ void CAN_transmit(uint32_t id, uint8_t *data, uint8_t len) {
     } else if(CAN1->TSR & (1U << 27)) {
         //chose mailbox 1
         CAN1->TI1R &= ~(1U << 2);
-
+        CAN1->TI1R &= ~(1U << 1);
         CAN1->TI1R &= ~(0x7FFU << 21);  
         CAN1->TI1R |= (id << 21);
 
@@ -242,7 +242,7 @@ void CAN_transmit(uint32_t id, uint8_t *data, uint8_t len) {
     } else if(CAN1->TSR & (1u << 28)) {
         //chose mailbox 2
         CAN1->TI2R &= ~(1U << 2);
-
+        CAN1->TI2R &= ~(1U << 2);
         CAN1->TI2R &= ~(0x7FFU << 21);  
         CAN1->TI2R |= (id << 21);
 
@@ -257,5 +257,36 @@ void CAN_transmit(uint32_t id, uint8_t *data, uint8_t len) {
         //mailboxes full
         UART_send_str("CAN TX: all mailboxes full\r\n");
         return;
+    }
+}
+
+void CAN_receive(uint32_t *id, uint8_t *data, uint8_t *len) {
+    /*
+    pending_1 = set FMP[1:0] in RFR reg to the 01b value
+    The message is available in the fifo output mailbox
+    reads and releases mailbox by setting RFOM bit in RFR reg
+    FIFO becomes empty again
+    If new valid message received in meantime, fifo stays pending_1 and
+    new message availble in output mailbox
+    IF app does not release the mailbox , next valid messesage is stored
+    in FIFO which enters pending_2 state (FMP[1:0 = 10b])
+    Same process for pending_3 state (FMP[1:0 = 11b])
+    At this point software must release output mailbox
+    by setting RFOM bit, so new message can be stored
+    */
+
+    if(CAN1->RF0R & (0x3U)) {
+        *id = (CAN1->RI0R >> 21) & 0x7FFU;
+        *len = CAN1->RDT0R & (0xFU);
+
+        for(uint8_t i = 0; i < 4; i++) {
+            data[i] = (uint8_t)(CAN1->RDL0R >> (i * 8));
+        }
+
+        for(uint8_t i = 0; i < 4; i++) {
+            data[i + 4] = (uint8_t)(CAN1->RDH0R >> (i * 8));
+        }
+
+        CAN1->RF0R |= (1U << 5);
     }
 }

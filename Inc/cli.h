@@ -31,4 +31,6 @@ void handle_read_adc(const char *args);
 
 void handle_CAN_transmit(const char *args);
 
+void handle_CAN_receive(const char *args);
+
 #endif //cli.h
