@@ -1,0 +1,9 @@
+../Src/uart.c:11:6:UART_init	1
+../Src/uart.c:51:6:UART_send_char	2
+../Src/uart.c:56:6:UART_receive_char	2
+../Src/uart.c:61:6:UART_send_str	2
+../Src/uart.c:68:6:UART_receive_str	4
+../Src/uart.c:81:6:UART_print_int	5
+../Src/uart.c:104:6:USART2_IRQHandler	4
+../Src/uart.c:118:9:get_UART_IRQ_FLAG	1
+../Src/uart.c:122:13:get_UART_IRQ_CMD	1

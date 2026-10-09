@@ -1,0 +1,2 @@
+../Src/adc.c:6:6:ADC_init	4	static
+../Src/adc.c:13:10:ADC_single_conversion	16	static

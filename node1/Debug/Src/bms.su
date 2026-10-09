@@ -1,0 +1,6 @@
+../Src/bms.c:11:6:BMS_init	56	static
+../Src/bms.c:66:7:BMS_raw_to_volt	32	static
+../Src/bms.c:72:6:BMS_calculate_cell_voltage	48	static
+../Src/bms.c:87:7:BMS_avg_voltage	24	static
+../Src/bms.c:100:7:BMS_calculate_charge	24	static
+../Src/bms.c:111:14:BMS_check_fault	24	static

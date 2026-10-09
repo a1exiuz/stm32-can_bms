@@ -1,0 +1,10 @@
+../Src/cli.c:24:6:CLI_command_parser	32	static
+../Src/cli.c:39:6:handle_ping	16	static
+../Src/cli.c:44:6:handle_raw_to_voltage	120	static
+../Src/cli.c:65:6:handle_calculate_cell_voltage	144	static
+../Src/cli.c:100:6:handle_avg_voltage	144	static
+../Src/cli.c:129:6:handle_calculate_charge	112	static
+../Src/cli.c:145:6:handle_check_fault	120	static
+../Src/cli.c:173:6:handle_read_adc	88	static
+../Src/cli.c:187:6:handle_CAN_transmit	104	static
+../Src/cli.c:205:6:handle_CAN_receive	104	static

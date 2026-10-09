@@ -1,0 +1,7 @@
+../Src/ssd1306.c:52:6:SSD1306_send_command	16	static
+../Src/ssd1306.c:56:6:SSD1306_init	8	static
+../Src/ssd1306.c:97:6:SSD1306_send_data	16	static
+../Src/ssd1306.c:101:6:SSD1306_set_cursor	16	static
+../Src/ssd1306.c:111:6:SSD1306_fill	24	static
+../Src/ssd1306.c:119:6:SSD1306_print_char	24	static
+../Src/ssd1306.c:148:6:SSD1306_print_str	16	static

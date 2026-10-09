@@ -1,0 +1,122 @@
+#include "bms.h"
+#include "adc.h"
+#include "gpio.h"
+
+const float CELL_R1[] = {CELL1_RESISTOR1, CELL2_RESISTOR1, 
+CELL3_RESISTOR1, CELL4_RESISTOR1};
+
+const float CELL_R2[] = {CELL1_RESISTOR2, CELL2_RESISTOR2, 
+CELL3_RESISTOR2, CELL4_RESISTOR2};
+
+void BMS_init(void) {
+    GPIO_Config_t cell_1 = {
+        .port = GPIOA,
+        .pin = 0,
+        .port_code = 0,
+
+        .mode = ANALOG,
+        .type = PUSH_PULL, // IGNORED
+        .speed = LOW,      // IGNORED
+        .pull = NO_PULL,
+        .af = 0            // IGNORED
+    };
+
+    GPIO_Config_t cell_2 = {
+        .port = GPIOA,
+        .pin = 1,
+        .port_code = 0,
+
+        .mode = ANALOG,
+        .type = PUSH_PULL, // IGNORED
+        .speed = LOW,      // IGNORED
+        .pull = NO_PULL,
+        .af = 0            // IGNORED
+    };
+
+    GPIO_Config_t cell_3 = {
+        .port = GPIOA,
+        .pin = 4,
+        .port_code = 0,
+
+        .mode = ANALOG,
+        .type = PUSH_PULL, // IGNORED
+        .speed = LOW,      // IGNORED
+        .pull = NO_PULL,
+        .af = 0            // IGNORED
+    };
+
+    GPIO_Config_t cell_4 = {
+        .port = GPIOA,
+        .pin = 6,
+        .port_code = 0,
+
+        .mode = ANALOG,
+        .type = PUSH_PULL, // IGNORED
+        .speed = LOW,      // IGNORED
+        .pull = NO_PULL,
+        .af = 0            // IGNORED
+    };
+
+    GPIO_init(&cell_1);
+    GPIO_init(&cell_2);
+    GPIO_init(&cell_3);
+    GPIO_init(&cell_4);
+}
+
+float BMS_raw_to_volt(uint16_t raw, float r1, float r2) {
+    float junction = (raw / ADC_MAX_VAL) * ADC_MAX_VOLTAGE;
+    float cell_volt = junction * (r1 + r2) / r2;
+    return (cell_volt);
+}
+
+void BMS_calculate_cell_voltage(uint16_t *raw, float *voltages, uint8_t num_cells) {
+    if(!raw || !voltages)
+        return;
+    
+    for(uint8_t i = 0; i < num_cells; i++) {
+        if(i == 0) {
+            voltages[i] = BMS_raw_to_volt(raw[i], CELL_R1[i], CELL_R2[i]);
+        } else {
+            float cumulative = BMS_raw_to_volt(raw[i], CELL_R1[i], CELL_R2[i]);
+            float prev_cumulative = BMS_raw_to_volt(raw[i-1], CELL_R1[i-1], CELL_R2[i-1]);
+            voltages[i] = cumulative - prev_cumulative;
+        } 
+    }
+}
+
+float BMS_avg_voltage(float *voltages, uint8_t num_cells) {
+    if(!voltages) 
+        return 0;
+
+    float cumulative_volt = 0;
+
+    for(uint8_t i = 0; i < num_cells; i++) {
+        cumulative_volt += voltages[i];
+    }
+
+    return(cumulative_volt / num_cells);
+}
+
+float BMS_calculate_charge(float avg_voltage) {
+    float soc = (avg_voltage - CELL_MIN_VOLTAGE) / (CELL_MAX_VOLTAGE - CELL_MIN_VOLTAGE) * 100.0f;
+
+    if(soc > 100.00f)
+        return(100.00f);
+    else if(soc < 0.00f)
+        return(0.00f);
+    else
+        return(soc);
+}
+
+BMS_Status_t BMS_check_fault(float *voltages, uint8_t num_cells) {
+    if(!voltages)
+        return FAULT;
+
+    for(uint8_t i = 0; i < num_cells; i++) {
+        if(voltages[i] <= CELL_MIN_VOLTAGE) {
+            return FAULT;
+        }
+    }
+    
+    return OK;
+}

@@ -1,0 +1,2 @@
+../Src/nvic.c:4:6:NVIC_enable	2
+../Src/nvic.c:13:6:NVIC_disable	2

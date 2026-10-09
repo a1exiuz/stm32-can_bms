@@ -1,0 +1,54 @@
+#ifndef SSD1306_H
+#define SSD1306_H
+
+#include <stdint.h>
+
+#define SSD1306_ADDR 0x3C
+#define SSD1306_CMD_MODE 0x00
+#define SSD1306_DATA_MODE 0x40
+#define SSD1306_DISPLAY_OFF 0xAE
+#define SSD1306_CLOCK_DIVIDE_RATIO 0xD5
+#define SSD1306_OSCILLATOR_FREQUENCY 0x80
+#define SSD1306_MULTIPLEX_RATIO 0xA8
+#define SSD1306_64MUX 0x3F
+#define SSD1306_DISPLAY_OFFSET 0xD3
+#define SSD1306_NO_OFFSET 0x00
+#define SSD1306_START_LINE 0x40
+#define SSD1306_CHARGE_PUMP 0x8D
+#define SSD1306_ENABLE_PUMP 0x14
+#define SSD1306_SET_MEM_ADDR_MODE 0x20
+#define SSD1306_HORIZONTAL_ADDR 0x00
+#define SSD1306_SET_SEG_RE_MAP 0xA0
+#define SSD1306_SET_COM_OUTPUT_DIR 0xC0
+#define SSD1306_SET_COM_PINS_CFG 0xDA
+#define SSD1306_COM_PINS_VAL 0x12
+#define SSD1306_SET_CONTRAST 0x81
+#define SSD1306_CONTRAST_VAL 0xCF
+#define SSD1306_SET_PRE_CHARGE 0xD9
+#define SSD1306_PRE_CHARGE_VAL 0xF1
+#define SSD1306_SET_VCOMH_LVL 0xDB
+#define SSD1306_VCOMH_VAL 0x40
+#define SSD1306_ENTIRE_DISPLAY_ON 0xA4
+#define SSD1306_SET_NORMAL_DISPLAY 0xA6
+#define SSD1306_DISPLAY_ON 0xAF
+#define SSD1306_SET_COLUMN_ADDR 0x21
+#define SSD1306_SET_PAGE_ADDR 0x22
+#define DEGREE_CHAR 0xF8
+
+extern const uint8_t font5x7[][5];
+
+void SSD1306_send_command(uint8_t cmd);
+
+void SSD1306_init(void);
+
+void SSD1306_send_data(uint8_t data);
+
+void SSD1306_set_cursor(uint8_t col, uint8_t page);
+
+void SSD1306_fill(uint8_t val);
+
+void SSD1306_print_char(char c);
+
+void SSD1306_print_str(const char *c);
+
+#endif 
