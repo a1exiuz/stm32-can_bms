@@ -1,6 +1,7 @@
 #include "bms.h"
 #include "adc.h"
 #include "gpio.h"
+#include "can.h"
 
 const float CELL_R1[] = {CELL1_RESISTOR1, CELL2_RESISTOR1, 
 CELL3_RESISTOR1, CELL4_RESISTOR1};
@@ -119,4 +120,29 @@ BMS_Status_t BMS_check_fault(float *voltages, uint8_t num_cells) {
     }
     
     return OK;
+}
+
+void BMS_transmit_voltage(void) {
+    uint16_t raw[4] = {0};
+    raw[0] = ADC_single_conversion(CELL1_CHANNEL);
+    raw[1] = ADC_single_conversion(CELL2_CHANNEL);
+    raw[2] = ADC_single_conversion(CELL3_CHANNEL);
+    raw[3] = ADC_single_conversion(CELL4_CHANNEL);
+
+    float voltages[4] = {0};
+
+    BMS_calculate_cell_voltage(raw, voltages, 4);
+
+    uint16_t voltages_16[4] = {0};
+    for(uint8_t i = 0; i < 4; i++) {
+        voltages_16[i] = (uint16_t)(voltages[i] * 100);
+    }
+
+    uint8_t data[8] = {0};
+    for(uint8_t i = 0; i < 4; i++) {
+        data[i * 2] = (voltages_16[i]) & 0xFFU;
+        data[(i * 2) + 1] =(voltages_16[i] >> 8) & 0xFFU;
+    }
+
+    CAN_transmit(BMS_CELL_VOLTAGE_ID, data, 8);
 }

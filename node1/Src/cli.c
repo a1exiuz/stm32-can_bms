@@ -16,7 +16,8 @@ const Command_t commands[] = {
     {"CHECK FAULT", handle_check_fault},
     {"READ ADC", handle_read_adc},
     {"CAN TRANSMIT", handle_CAN_transmit},
-    {"CAN RECEIVE", handle_CAN_receive}
+    {"CAN RECEIVE", handle_CAN_receive},
+    {"BMS TRANSMIT VOLTAGE", handle_BMS_transmit_voltage}
 };
 
 #define NUM_CMDS  (sizeof(commands) / sizeof(commands[0]))
@@ -221,4 +222,11 @@ void handle_CAN_receive(const char *args) {
         UART_send_str(buf);
     }
 
+}
+
+void handle_BMS_transmit_voltage(const char *args) {
+    (void)args;
+
+    BMS_transmit_voltage();
+    UART_send_str("BMS voltages data sent\r\n");
 }

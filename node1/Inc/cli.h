@@ -33,4 +33,5 @@ void handle_CAN_transmit(const char *args);
 
 void handle_CAN_receive(const char *args);
 
+void handle_BMS_transmit_voltage(const char *args);
 #endif //cli.h

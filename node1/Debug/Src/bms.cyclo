@@ -1,6 +1,7 @@
-../Src/bms.c:11:6:BMS_init	1
-../Src/bms.c:66:7:BMS_raw_to_volt	1
-../Src/bms.c:72:6:BMS_calculate_cell_voltage	5
-../Src/bms.c:87:7:BMS_avg_voltage	3
-../Src/bms.c:100:7:BMS_calculate_charge	3
-../Src/bms.c:111:14:BMS_check_fault	4
+../Src/bms.c:12:6:BMS_init	1
+../Src/bms.c:67:7:BMS_raw_to_volt	1
+../Src/bms.c:73:6:BMS_calculate_cell_voltage	5
+../Src/bms.c:88:7:BMS_avg_voltage	3
+../Src/bms.c:101:7:BMS_calculate_charge	3
+../Src/bms.c:112:14:BMS_check_fault	4
+../Src/bms.c:125:6:BMS_transmit_voltage	3
