@@ -125,13 +125,11 @@ BMS_Status_t BMS_check_fault(float *voltages, uint8_t num_cells) {
 }
 
 void BMS_transmit_voltage(void) {
-    UART_send_str("ENTER\r\n");
     uint16_t raw[4] = {0};
     raw[0] = ADC_single_conversion(CELL1_CHANNEL);
     raw[1] = ADC_single_conversion(CELL2_CHANNEL);
     raw[2] = ADC_single_conversion(CELL3_CHANNEL);
     raw[3] = ADC_single_conversion(CELL4_CHANNEL);
-    UART_send_str("HERE1\r\n");
     float voltages[4] = {0};
 
     BMS_calculate_cell_voltage(raw, voltages, 4);
@@ -140,16 +138,16 @@ void BMS_transmit_voltage(void) {
     for(uint8_t i = 0; i < 4; i++) {
         voltages_16[i] = (uint16_t)(voltages[i] * 100);
     }
-    UART_send_str("HERE2\r\n");
+
     uint8_t data[8] = {0};
     for(uint8_t i = 0; i < 4; i++) {
         data[i * 2] = (voltages_16[i]) & 0xFFU;
         data[(i * 2) + 1] =(voltages_16[i] >> 8) & 0xFFU;
     }
-    UART_send_str("HERE3\r\n");
+
     char buf[64];
     for(uint8_t i = 0; i < 8; i++) {
-        sprintf(buf, "%02X", data[i]);
+        sprintf(buf, "%02X\r\n", data[i]);
         UART_send_str(buf);
     }
 

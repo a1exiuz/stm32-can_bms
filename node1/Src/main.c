@@ -90,6 +90,9 @@ int main(void)
 		if(get_UART_IRQ_FLAG()) {
             CLI_command_parser(get_UART_IRQ_CMD());
         }
+
+        BMS_transmit_voltage();
+        for(volatile uint32_t i = 0; i < 800000; i++);
     }
 
     

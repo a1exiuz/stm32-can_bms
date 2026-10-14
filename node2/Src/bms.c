@@ -3,7 +3,8 @@
 #include "can.h"
 #include "gpio.h"
 #include "uart.h"
-#include "stdio.h"
+#include "ssd1306.h"
+#include <stdio.h>
 
 const float CELL_R1[] = {CELL1_RESISTOR1, CELL2_RESISTOR1, 
 CELL3_RESISTOR1, CELL4_RESISTOR1};
@@ -128,16 +129,38 @@ void BMS_receive_data(void) {
     uint32_t rx_id;
     uint8_t data[8] = {0};
     uint8_t len;
+    uint16_t data_16[4] = {0};
+    float data_f[4] = {0};
 
     CAN_receive(&rx_id, data, &len);
 
+    for(uint8_t i = 0; i < 4; i++) {
+        data_16[i] = (data[i * 2]) | (data[(i * 2) + 1] << 8);
+        data_f[i] = ((float)data_16[i] / 100);
+    }
+
+    
+
     switch(rx_id) {
         case BMS_CELL_VOLTAGE_ID: {
-            char buf[64];
-            for(uint8_t i = 0; i < len; i++) {
-                sprintf(buf, "%02X", data[i]);
-                UART_send_str(buf);
-            }
+            char buf[32];
+
+            SSD1306_set_cursor(0, 0);
+            sprintf(buf, "C1: %.1fV", data_f[0]);
+            SSD1306_print_str(buf);
+
+            SSD1306_set_cursor(76, 0);
+            sprintf(buf, "C2: %.1fV", data_f[1]);
+            SSD1306_print_str(buf);
+
+            SSD1306_set_cursor(0, 2);
+            sprintf(buf, "C3: %.1fV", data_f[2]);
+            SSD1306_print_str(buf);
+
+            SSD1306_set_cursor(76, 2);
+            sprintf(buf, "C4: %.1fV", data_f[3]);
+            SSD1306_print_str(buf);
+
             break;
         }
         case BMS_INFO_ID:
