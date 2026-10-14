@@ -228,5 +228,6 @@ void handle_BMS_transmit_voltage(const char *args) {
     (void)args;
 
     BMS_transmit_voltage();
+
     UART_send_str("BMS voltages data sent\r\n");
 }

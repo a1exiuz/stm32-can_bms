@@ -1,6 +1,9 @@
 #include "bms.h"
 #include "adc.h"
+#include "can.h"
 #include "gpio.h"
+#include "uart.h"
+#include "stdio.h"
 
 const float CELL_R1[] = {CELL1_RESISTOR1, CELL2_RESISTOR1, 
 CELL3_RESISTOR1, CELL4_RESISTOR1};
@@ -119,4 +122,28 @@ BMS_Status_t BMS_check_fault(float *voltages, uint8_t num_cells) {
     }
     
     return OK;
+}
+
+void BMS_receive_data(void) {
+    uint32_t rx_id;
+    uint8_t data[8] = {0};
+    uint8_t len;
+
+    CAN_receive(&rx_id, data, &len);
+
+    switch(rx_id) {
+        case BMS_CELL_VOLTAGE_ID: {
+            char buf[64];
+            for(uint8_t i = 0; i < len; i++) {
+                sprintf(buf, "%02X", data[i]);
+                UART_send_str(buf);
+            }
+            break;
+        }
+        case BMS_INFO_ID:
+
+            break;
+        default:
+            break;
+    }
 }

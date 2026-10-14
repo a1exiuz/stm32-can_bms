@@ -3,7 +3,6 @@
 #include "rcc.h"
 #include "gpio.h"
 #include "uart.h"
-#include <stdio.h>
 #include <string.h>
 
 static const uint32_t bms_ids[] = {
