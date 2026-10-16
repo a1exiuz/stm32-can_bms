@@ -134,15 +134,14 @@ void BMS_receive_data(void) {
 
     CAN_receive(&rx_id, data, &len);
 
-    for(uint8_t i = 0; i < 4; i++) {
-        data_16[i] = (data[i * 2]) | (data[(i * 2) + 1] << 8);
-        data_f[i] = ((float)data_16[i] / 100);
-    }
-
     
-
     switch(rx_id) {
         case BMS_CELL_VOLTAGE_ID: {
+            for(uint8_t i = 0; i < 4; i++) {
+                data_16[i] = (data[i * 2]) | (data[(i * 2) + 1] << 8);
+                data_f[i] = ((float)data_16[i] / 100);
+            }
+
             char buf[32];
 
             SSD1306_set_cursor(0, 0);
@@ -163,9 +162,23 @@ void BMS_receive_data(void) {
 
             break;
         }
-        case BMS_INFO_ID:
+        case BMS_INFO_ID: {
+            char buf[32];
+            
+            SSD1306_set_cursor(0, 4);
+            sprintf(buf, "SOC: %d%%", data[0]);
+            SSD1306_print_str(buf);
+            
 
+            if(data[1] == 0) {
+                SSD1306_set_cursor(0, 6);
+                SSD1306_print_str("STATUS: OK");
+            } else if(data[1] == 1) {
+                SSD1306_set_cursor(0, 6);
+                SSD1306_print_str("STATUS: FAULT");
+            }
             break;
+        }
         default:
             break;
     }

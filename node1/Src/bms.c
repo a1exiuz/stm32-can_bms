@@ -124,15 +124,17 @@ BMS_Status_t BMS_check_fault(float *voltages, uint8_t num_cells) {
     return OK;
 }
 
-void BMS_transmit_voltage(void) {
+void BMS_read_voltages(float *voltages) {
     uint16_t raw[4] = {0};
     raw[0] = ADC_single_conversion(CELL1_CHANNEL);
     raw[1] = ADC_single_conversion(CELL2_CHANNEL);
     raw[2] = ADC_single_conversion(CELL3_CHANNEL);
     raw[3] = ADC_single_conversion(CELL4_CHANNEL);
-    float voltages[4] = {0};
 
     BMS_calculate_cell_voltage(raw, voltages, 4);
+}
+
+void BMS_transmit_voltage(float *voltages) {
 
     uint16_t voltages_16[4] = {0};
     for(uint8_t i = 0; i < 4; i++) {
@@ -152,4 +154,23 @@ void BMS_transmit_voltage(void) {
     }
 
     CAN_transmit(BMS_CELL_VOLTAGE_ID, data, 8);
+}
+
+void BMS_transmit_info(float *voltages) {
+    uint8_t check = ((uint8_t)BMS_check_fault(voltages, 4));
+
+    float avg_volt = BMS_avg_voltage(voltages, 4);
+
+    float SOC = BMS_calculate_charge(avg_volt);
+
+    uint8_t SOC_8 = ((uint8_t)SOC);
+
+
+    uint8_t data[8] = {0};
+    data[0] = (SOC_8);
+    data[1] = (check);
+
+    CAN_transmit(BMS_INFO_ID, data, 2);
+
+    //temp next
 }

@@ -43,7 +43,10 @@ float BMS_calculate_charge(float avg_voltage);
 
 BMS_Status_t BMS_check_fault(float *voltages, uint8_t num_cells);
 
-void BMS_transmit_voltage(void);
+void BMS_read_voltages(float *voltages);
 
+void BMS_transmit_voltage(float *voltages);
+
+void BMS_transmit_info(float *voltages);
 
 #endif //bms.h

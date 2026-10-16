@@ -227,7 +227,7 @@ void handle_CAN_receive(const char *args) {
 void handle_BMS_transmit_voltage(const char *args) {
     (void)args;
 
-    BMS_transmit_voltage();
+   // BMS_transmit_voltage();
 
     UART_send_str("BMS voltages data sent\r\n");
 }
